@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+
 import useLoadingStore from "../../Store/LoadingStore/LoadingStore";
+import getDataFromDb from "../../GlobalFunctions/LocalStorageFunctions";
+import { addDataToDb } from "../../GlobalFunctions/LocalStorageFunctions";
 
 import {
   Box,
@@ -25,7 +28,7 @@ const BuyNow = () => {
   const { id } = useParams();
   console.log(id);
 
-  const {loading, setLoading} = useLoadingStore();
+  const { loading, setLoading } = useLoadingStore();
 
   useEffect(() => {
     setLoading(true);
@@ -38,34 +41,48 @@ const BuyNow = () => {
 
   console.log(product);
 
-  return (
+  const addToCart = (id) => {
+    const data = getDataFromDb();
+    const newItem = [...data, { title: product.title, price: product.price }];
 
+    addDataToDb(newItem);
+  };
+
+  return (
     <>
-    { loading? (
-        <VStack justifyContent='center' w='100%' h='100vh'>
-            <Spinner size='xl' color="blue.500"/>
+      {loading ? (
+        <VStack justifyContent="center" w="100%" h="100vh">
+          <Spinner size="xl" color="blue.500" />
         </VStack>
-    ) : (
-    <HStack justifyContent="space-between" p="50px" h="100vh">
-      <Box w="50%" h="100%">
-        <Image src={product.image} w="100%" h="100%" objectFit="contain" />
-      </Box>
-      <VStack w="50%" alignItems="flex-start" padding="40px" spacing="30px">
-        <Heading fontSize="50px">{product.title}</Heading>
-        <Text>{product.description}</Text>
-        <Heading>Rs {product.price}</Heading>
-        <HStack>
-          <Button colorScheme="blue" p="30px">
-            Buy Now
-          </Button>
-          <Button colorScheme="teal" variant="ghost" color="primary" p="30px">
-            Add to cart
-          </Button>
+      ) : (
+        <HStack justifyContent="space-between" p="50px" h="100vh">
+          <Box w="50%" h="100%">
+            <Image src={product.image} w="100%" h="100%" objectFit="contain" />
+          </Box>
+          <VStack w="50%" alignItems="flex-start" padding="40px" spacing="30px">
+            <Heading fontSize="50px">{product.title}</Heading>
+            <Text>{product.description}</Text>
+            <Heading>Rs {product.price}</Heading>
+            <HStack>
+              <Button colorScheme="blue" p="30px">
+                Buy Now
+              </Button>
+              <Button
+                colorScheme="teal"
+                variant="ghost"
+                color="primary"
+                p="30px"
+                onClick={() => addToCart(id)}
+              >
+                Add to cart
+              </Button>
+            </HStack>
+            <Button onClick={() => navigate("/")}>
+              Return to all Products
+            </Button>
+          </VStack>
         </HStack>
-        <Button onClick={()=> navigate('/')}>Return to all Products</Button>
-      </VStack>
-    </HStack>
-    )}
+      )}
     </>
   );
 };
